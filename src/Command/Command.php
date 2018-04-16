@@ -8,6 +8,7 @@
 namespace Drupal\Console\Core\Command;
 
 use Symfony\Component\Console\Command\Command as BaseCommand;
+use Symfony\Component\Console\Input\ArrayInput;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 use Drupal\Console\Core\Command\Shared\CommandTrait;
@@ -34,11 +35,17 @@ abstract class Command extends BaseCommand
     private $io;
 
     /**
+     * @var $learning
+     */
+    private $learning;
+
+      /**
      * {@inheritdoc}
      */
     protected function initialize(InputInterface $input, OutputInterface $output)
     {
         $this->io = new DrupalStyle($input, $output);
+        $this->learning = $input->getOption('learning');
     }
 
     /**
@@ -60,4 +67,49 @@ abstract class Command extends BaseCommand
     public function setDrupalFinder($drupalFinder) {
         $this->drupalFinder = $drupalFinder;
     }
-}
+
+    /**
+     * Runs a list of commands.
+     *
+     * @param $list The list of commands to run.
+     *
+     * @todo Check if we can reuse the code found in ChainCommand.
+     */
+    public function runCommands(&$commands) {
+      foreach ($commands as $key => $item) {
+        $parameters = array();
+        $command = $this->getApplication()->find($item['command']);
+
+        // Command arguments.
+        if (!empty($item['arguments'])) {
+          foreach ($item['arguments'] as $name => $value) {
+            $parameters[$name] = $value;
+          }
+        }
+
+        // Command options.
+        if (isset($item['options'])) {
+          $options = array_filter($item['options']);
+          foreach ($options as $name => $value) {
+            $parameters['--' . $name] = $value;
+          }
+        }
+
+        $commandInput = new ArrayInput(array_filter($parameters));
+        if ($this->learning && !empty(trim($commandInput))) {
+            $this->io->comment(
+               $this->translator->trans('commands.exec.messages.executing-command') .': ',
+               false
+            );
+            $this->getIo()->info($item['command']);
+        }
+
+        if ($command->run($commandInput, $this->getIo()) !== 0) {
+          return 1;
+        }
+        // Remove from queue.
+        unset($commands[$key]);
+      }
+    }
+
+  }
