@@ -11,6 +11,7 @@ vars:
     - drupal-composer/drupal-project:8.x-dev
     - acquia/lightning-project
     - acquia/reservoir-project
+    - burdamagazinorg/thunder-project
   profile: standard
 commands:
   # Create Drupal project using DrupalComposer
