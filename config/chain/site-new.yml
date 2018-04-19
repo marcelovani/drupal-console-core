@@ -6,8 +6,8 @@ command:
   description: 'Download a new Drupal project'
 vars:
   repository:
-    - drupal/drupal
     - weknowinc/drupal-project
+    - drupal/drupal
     - drupal-composer/drupal-project:8.x-dev
     - acquia/lightning-project
     - acquia/reservoir-project
