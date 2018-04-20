@@ -9,6 +9,7 @@ use Drupal\Console\Core\Generator\SiteAliasGenerator;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
+use Drupal\Console\Core\Style\DrupalStyle;
 
 /**
  * Class SiteAliasCommand
@@ -33,6 +34,11 @@ class SiteAliasCommand extends Command
     protected $configurationManager;
 
     /**
+     * @var DrupalStyle
+     */
+    private $io;
+
+    /**
      * @var array
      */
     private $types = [
@@ -46,11 +52,11 @@ class SiteAliasCommand extends Command
      */
     private $extraOptions = [
         'ssh' => [
-            'none' => '',
+            'none' => 'none',
             'vagrant' => '-o PasswordAuthentication=no -i ~/.vagrant.d/insecure_private_key',
         ],
         'container' => [
-            'none' => '',
+            'none' => 'none',
             'drupal4docker' => 'docker-compose exec --user=82 php'
         ]
     ];
@@ -153,6 +159,8 @@ class SiteAliasCommand extends Command
         InputInterface $input,
         OutputInterface $output
     ) {
+        $this->io = new DrupalStyle($input, $output);
+        $this->io->comment($this->trans('application.options.tips.autocomplete-arrows'));
         $site = $input->getOption('site');
         $name = $input->getOption('name');
         if (!$name) {
@@ -182,7 +190,7 @@ class SiteAliasCommand extends Command
         if (!$environment) {
             $environment = $this->getIo()->ask(
                 $this->trans('commands.generate.site.alias.questions.environment'),
-                null
+                $this->configurationManager->getConfiguration()->get('application.environment')
             );
 
             $input->setOption('environment', $environment);
@@ -190,9 +198,10 @@ class SiteAliasCommand extends Command
 
         $type = $input->getOption('type');
         if (!$type) {
-            $type = $this->getIo()->choiceNoList(
+            $type = $this->getIo()->choice(
                 $this->trans('commands.generate.site.alias.questions.type'),
-                $this->types
+                $this->types,
+                reset($this->types)
             );
 
             $input->setOption('type', $type);
@@ -201,11 +210,11 @@ class SiteAliasCommand extends Command
         $composerRoot = $input->getOption('composer-root');
         if (!$composerRoot) {
             $root = $this->drupalFinder->getComposerRoot();
-            if ($type === 'container') {
-                $root = '/var/www/html';
-            }
             if ($type === 'ssh') {
                 $root = '/var/www/'.$name;
+            }
+            else {
+                $root = '/var/www/html';
             }
             $composerRoot = $this->getIo()->ask(
                 $this->trans('commands.generate.site.alias.questions.composer-root'),
@@ -235,15 +244,14 @@ class SiteAliasCommand extends Command
             $extraOptions = $input->getOption('extra-options');
             if (!$extraOptions) {
                 $options = array_values($this->extraOptions[$type]);
-
-                $extraOptions = $this->getIo()->choiceNoList(
+                $extraOptions = $this->getIo()->choice(
                     $this->trans(
                         'commands.generate.site.alias.questions.extra-options'
                     ),
                     $options,
                     current($options)
                 );
-
+                $extraOptions = ($extraOptions == 'none') ? '' : $extraOptions;
                 $input->setOption('extra-options', $extraOptions);
             }
 
@@ -281,9 +289,11 @@ class SiteAliasCommand extends Command
         }
 
         if (!$directory) {
+            $directories = $this->configurationManager->getConfigurationDirectories();
             $directory = $this->getIo()->choice(
                 $this->trans('commands.generate.site.alias.questions.directory'),
-                $this->configurationManager->getConfigurationDirectories()
+                $directories,
+                reset($directories)
             );
 
             $input->setOption('directory', $directory);
