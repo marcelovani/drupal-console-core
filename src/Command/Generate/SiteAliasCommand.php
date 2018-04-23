@@ -149,6 +149,12 @@ class SiteAliasCommand extends Command
                 InputOption::VALUE_REQUIRED,
                 $this->trans('commands.generate.site.alias.options.directory')
             )
+            ->addOption(
+                'profile',
+                'standard',
+                InputOption::VALUE_OPTIONAL,
+                $this->trans('commands.generate.site.alias.options.profile')
+            )
             ->setAliases(['gsa']);
     }
 
@@ -283,6 +289,16 @@ class SiteAliasCommand extends Command
             }
         }
 
+        $profile = $input->getOption('profile');
+        if (!$profile) {
+            $profile = $this->getIo()->ask(
+                $this->trans('commands.generate.site.alias.questions.profile'),
+                'standard'
+            );
+
+            $input->setOption('profile', $profile);
+        }
+
         $directory = $input->getOption('directory');
         if ($site && $this->drupalFinder->getComposerRoot()) {
             $directory = $this->drupalFinder->getComposerRoot() . '/console/';
@@ -323,7 +339,8 @@ class SiteAliasCommand extends Command
                 'port' => $input->getOption('port'),
                 'user' => $input->getOption('user'),
                 'host' => $input->getOption('host'),
-                'directory' => $directory
+                'directory' => $directory,
+                'profile' => $input->getOption('profile'),
             ]
         );
     }
