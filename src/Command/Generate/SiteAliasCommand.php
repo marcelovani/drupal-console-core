@@ -228,7 +228,7 @@ class SiteAliasCommand extends Command
         // Backwards compatibility after renaiming option to drupal-root.
         $composerRoot = $input->getOption('composer-root');
         $drupalRoot = $input->getOption('drupal-root');
-        if (empty($drupalRoot) && !empty($composerRoot) {
+        if (empty($drupalRoot) && !empty($composerRoot)) {
             $drupalRoot = $composerRoot;
         }
         if (!$drupalRoot) {
@@ -244,7 +244,17 @@ class SiteAliasCommand extends Command
                 $root
             );
 
-            $input->setOption('drupal-root', $drupalRoot);
+            $input->setOption('drupal-root', trim($drupalRoot, '/'));
+        }
+
+        $serverRoot = $input->getOption('server-root');
+        if (!$serverRoot) {
+            $serverRoot = $this->getIo()->askEmpty(
+                $this->trans('commands.generate.site.alias.questions.server-root'),
+                $drupalRoot . '/' . 'web'
+            );
+
+            $input->setOption('server-root', $serverRoot);
         }
 
         $siteUri = $input->getOption('site-uri');
@@ -352,6 +362,7 @@ class SiteAliasCommand extends Command
                 'type' => $input->getOption('type'),
                 'extra_options' => $input->getOption('extra-options'),
                 'root' => $input->getOption('drupal-root'),
+                'server_root' => $input->getOption('server-root'),
                 'uri' => $input->getOption('site-uri'),
                 'port' => $input->getOption('port'),
                 'user' => $input->getOption('user'),
