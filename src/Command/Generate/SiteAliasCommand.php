@@ -110,8 +110,20 @@ class SiteAliasCommand extends Command
             ->addOption(
                 'composer-root',
                 null,
-                InputOption::VALUE_OPTIONAL,
+                InputOption::VALUE_NONE,
                 $this->trans('commands.generate.site.alias.options.composer-root')
+            )
+            ->addOption(
+                'drupal-root',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                $this->trans('commands.generate.site.alias.options.drupal-root')
+            )
+            ->addOption(
+                'server-root',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                $this->trans('commands.generate.site.alias.options.server-root')
             )
             ->addOption(
                 'site-uri',
@@ -213,21 +225,26 @@ class SiteAliasCommand extends Command
             $input->setOption('type', $type);
         }
 
+        // Backwards compatibility after renaiming option to drupal-root.
         $composerRoot = $input->getOption('composer-root');
-        if (!$composerRoot) {
+        $drupalRoot = $input->getOption('drupal-root');
+        if (empty($drupalRoot) && !empty($composerRoot) {
+            $drupalRoot = $composerRoot;
+        }
+        if (!$drupalRoot) {
             $root = $this->drupalFinder->getComposerRoot();
             if ($type === 'ssh') {
-                $root = '/var/www/'.$name;
+                $root = '/var/www/' . $name;
             }
             else {
                 $root = '/var/www/html';
             }
-            $composerRoot = $this->getIo()->ask(
-                $this->trans('commands.generate.site.alias.questions.composer-root'),
+            $drupalRoot = $this->getIo()->ask(
+                $this->trans('commands.generate.site.alias.questions.drupal-root'),
                 $root
             );
 
-            $input->setOption('composer-root', $composerRoot);
+            $input->setOption('drupal-root', $drupalRoot);
         }
 
         $siteUri = $input->getOption('site-uri');
@@ -334,7 +351,7 @@ class SiteAliasCommand extends Command
                 'environment' => $input->getOption('environment'),
                 'type' => $input->getOption('type'),
                 'extra_options' => $input->getOption('extra-options'),
-                'root' => $input->getOption('composer-root'),
+                'root' => $input->getOption('drupal-root'),
                 'uri' => $input->getOption('site-uri'),
                 'port' => $input->getOption('port'),
                 'user' => $input->getOption('user'),
