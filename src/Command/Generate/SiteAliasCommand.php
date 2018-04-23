@@ -225,23 +225,18 @@ class SiteAliasCommand extends Command
             $input->setOption('type', $type);
         }
 
-        // Backwards compatibility after renaiming option to drupal-root.
+        // Backwards compatibility after renaming option to drupal-root.
         $composerRoot = $input->getOption('composer-root');
+
         $drupalRoot = $input->getOption('drupal-root');
         if (empty($drupalRoot) && !empty($composerRoot)) {
             $drupalRoot = $composerRoot;
         }
         if (!$drupalRoot) {
             $root = $this->drupalFinder->getComposerRoot();
-            if ($type === 'ssh') {
-                $root = '/var/www/' . $name;
-            }
-            else {
-                $root = '/var/www/html';
-            }
             $drupalRoot = $this->getIo()->ask(
                 $this->trans('commands.generate.site.alias.questions.drupal-root'),
-                $root
+                '/var/www/' . $name
             );
 
             $input->setOption('drupal-root', trim($drupalRoot, '/'));
