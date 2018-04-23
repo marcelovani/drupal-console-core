@@ -506,8 +506,8 @@ class SiteAliasCommand extends Command
         if (!$drupalRoot) {
             $root = $this->drupalFinder->getComposerRoot();
             $drupalRoot = $this->getIo()->ask(
-                $this->trans('commands.generate.site.alias.options.drupal-root'),
-                '/var/www/' . $name
+                $this->trans('commands.generate.site.alias.questions.drupal-root'),
+                $root
             );
 
             $input->setOption('drupal-root', '/' . trim($drupalRoot, '/'));
