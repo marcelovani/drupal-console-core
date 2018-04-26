@@ -6,11 +6,14 @@
 {% if host %}
   host: {{ host }}
 {% endif %}
-{% if port %}
+{% if type == 'container' or type == 'ssh' %}
+  {{ type }}:
+  {% if port %}
   port: {{ port }}
-{% endif %}
+  {% endif %}
 {% if user %}
   user: {{ user }}
+{% endif %}
 {% endif %}
 {% if uri %}
   options:
