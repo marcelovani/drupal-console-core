@@ -15,7 +15,7 @@
 {% if account_mail %}
   account-mail: {{ account_mail }}
 {% endif %}
-{% if type == 'container' or type == 'ssh' %}
+{% if port and user %}
   {{ type }}:
   {% if port %}
   port: {{ port }}
