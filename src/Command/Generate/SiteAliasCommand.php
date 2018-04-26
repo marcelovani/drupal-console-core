@@ -51,6 +51,7 @@ class SiteAliasCommand extends Command
      * @var array
      */
     private $extraOptions = [
+        'local' => [],
         'ssh' => [
             'none' => 'none',
             'vagrant' => '-o PasswordAuthentication=no -i ~/.vagrant.d/insecure_private_key',
@@ -278,10 +279,10 @@ class SiteAliasCommand extends Command
             $input->setOption('host', $host);
         }
 
-        if ($type !== 'local') {
-            $extraOptions = $input->getOption('extra-options');
-            if (!$extraOptions) {
-                $options = array_values($this->extraOptions[$type]);
+        $extraOptions = $input->getOption('extra-options');
+        if (!$extraOptions) {
+            $options = array_values($this->extraOptions[$type]);
+            if (!empty($options)) {
                 $extraOptions = $this->getIo()->choice(
                     $this->trans(
                         'commands.generate.site.alias.questions.extra-options'
@@ -289,9 +290,12 @@ class SiteAliasCommand extends Command
                     $options,
                     current($options)
                 );
-                $extraOptions = ($extraOptions == 'none') ? '' : $extraOptions;
-                $input->setOption('extra-options', $extraOptions);
             }
+            $extraOptions = ($extraOptions == 'none') ? '' : $extraOptions;
+            $input->setOption('extra-options', $extraOptions);
+        }
+
+        if ($type !== 'local') {
 
             $user = $input->getOption('user');
             if (!$user) {
