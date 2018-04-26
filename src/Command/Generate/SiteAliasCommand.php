@@ -180,6 +180,8 @@ class SiteAliasCommand extends Command
     ) {
         $this->io = new DrupalStyle($input, $output);
         $this->io->comment($this->trans('application.options.tips.autocomplete-arrows'));
+
+        // Site name.
         $site = $input->getOption('site');
         $name = $input->getOption('name');
         if (!$name) {
@@ -205,6 +207,7 @@ class SiteAliasCommand extends Command
             $input->setOption('name', $name);
         }
 
+        // Environment.
         $environment = $input->getOption('environment');
         if (!$environment) {
             $environment = $this->getIo()->ask(
@@ -215,6 +218,7 @@ class SiteAliasCommand extends Command
             $input->setOption('environment', $environment);
         }
 
+        // Type.
         $type = $input->getOption('type');
         if (!$type) {
             $type = $this->getIo()->choice(
@@ -228,7 +232,7 @@ class SiteAliasCommand extends Command
 
         // Backwards compatibility after renaming option to drupal-root.
         $composerRoot = $input->getOption('composer-root');
-
+        // Drupal root.
         $drupalRoot = $input->getOption('drupal-root');
         if (empty($drupalRoot) && !empty($composerRoot)) {
             $drupalRoot = $composerRoot;
@@ -243,6 +247,7 @@ class SiteAliasCommand extends Command
             $input->setOption('drupal-root', trim($drupalRoot, '/'));
         }
 
+        // Server root.
         $serverRoot = $input->getOption('server-root');
         if (!$serverRoot) {
             $serverRoot = $this->getIo()->askEmpty(
@@ -253,6 +258,7 @@ class SiteAliasCommand extends Command
             $input->setOption('server-root', $serverRoot);
         }
 
+        // Site URI.
         $siteUri = $input->getOption('site-uri');
         if (!$siteUri) {
             $uri = explode('.', $environment);
@@ -269,6 +275,7 @@ class SiteAliasCommand extends Command
             $input->setOption('site-uri', $siteUri);
         }
 
+        // Host name.
         $host = $input->getOption('host');
         if (!$host) {
             $host = $this->getIo()->askEmpty(
@@ -279,6 +286,7 @@ class SiteAliasCommand extends Command
             $input->setOption('host', $host);
         }
 
+        // Extra options.
         $extraOptions = $input->getOption('extra-options');
         if (!$extraOptions) {
             $options = array_values($this->extraOptions[$type]);
@@ -295,6 +303,7 @@ class SiteAliasCommand extends Command
             $input->setOption('extra-options', $extraOptions);
         }
 
+        // Remote user/port.
         switch ($type) {
             case 'ssh':
             case 'container':
@@ -318,6 +327,7 @@ class SiteAliasCommand extends Command
                 break;
         }
 
+        // .
         $profile = $input->getOption('profile');
         if (!$profile) {
             $profile = $this->getIo()->ask(
@@ -328,6 +338,7 @@ class SiteAliasCommand extends Command
             $input->setOption('profile', $profile);
         }
 
+        // Directory.
         $directory = $input->getOption('directory');
         if ($site && $this->drupalFinder->getComposerRoot()) {
             $directory = $this->drupalFinder->getComposerRoot() . '/console/';
