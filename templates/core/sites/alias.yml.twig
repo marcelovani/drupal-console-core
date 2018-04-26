@@ -6,6 +6,15 @@
 {% if host %}
   host: {{ host }}
 {% endif %}
+{% if account_name %}
+  account-name: {{ account_name }}
+{% endif %}
+{% if account_pass %}
+  account-pass: {{ account_pass }}
+{% endif %}
+{% if account_mail %}
+  account-mail: {{ account_mail }}
+{% endif %}
 {% if type == 'container' or type == 'ssh' %}
   {{ type }}:
   {% if port %}
