@@ -268,6 +268,16 @@ class SiteAliasCommand extends Command
             $input->setOption('site-uri', $siteUri);
         }
 
+        $host = $input->getOption('host');
+        if (!$host) {
+            $host = $this->getIo()->askEmpty(
+                $this->trans('commands.generate.site.alias.questions.host'),
+                'example.com'
+            );
+
+            $input->setOption('host', $host);
+        }
+
         if ($type !== 'local') {
             $extraOptions = $input->getOption('extra-options');
             if (!$extraOptions) {
@@ -281,15 +291,6 @@ class SiteAliasCommand extends Command
                 );
                 $extraOptions = ($extraOptions == 'none') ? '' : $extraOptions;
                 $input->setOption('extra-options', $extraOptions);
-            }
-
-            $host = $input->getOption('host');
-            if (!$host) {
-                $host = $this->getIo()->askEmpty(
-                    $this->trans('commands.generate.site.alias.questions.host')
-                );
-
-                $input->setOption('host', $host);
             }
 
             $user = $input->getOption('user');
