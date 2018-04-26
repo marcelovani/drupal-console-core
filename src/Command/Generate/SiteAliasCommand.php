@@ -162,6 +162,7 @@ class SiteAliasCommand extends Command
                 InputOption::VALUE_REQUIRED,
                 $this->trans('commands.generate.site.alias.options.directory')
             )
+            // Site installation.
             ->addOption(
                 'account-name',
                 'admin',
@@ -180,6 +181,7 @@ class SiteAliasCommand extends Command
                 InputOption::VALUE_OPTIONAL,
                 $this->trans('commands.generate.site.alias.options.account-mail')
             )
+            // Repository.
             ->addOption(
                 'repo-type',
                 'git',
@@ -197,6 +199,49 @@ class SiteAliasCommand extends Command
                 'master',
                 InputOption::VALUE_OPTIONAL,
                 $this->trans('commands.generate.site.alias.options.repo-branch')
+            )
+            // Database.
+            ->addOption(
+                'db-dump',
+                '',
+                InputOption::VALUE_OPTIONAL,
+                $this->trans('commands.generate.site.alias.options.db-dump')
+            )
+            ->addOption(
+                'db-driver',
+                'mysql',
+                InputOption::VALUE_OPTIONAL,
+                $this->trans('commands.generate.site.alias.options.db-driver')
+            )
+            ->addOption(
+                'db-host',
+                'mariadb',
+                InputOption::VALUE_OPTIONAL,
+                $this->trans('commands.generate.site.alias.options.db-host')
+            )
+            ->addOption(
+                'db-port',
+                '3306',
+                InputOption::VALUE_OPTIONAL,
+                $this->trans('commands.generate.site.alias.options.db-port')
+            )
+            ->addOption(
+                'db-name',
+                'drupal',
+                InputOption::VALUE_OPTIONAL,
+                $this->trans('commands.generate.site.alias.options.db-name')
+            )
+            ->addOption(
+                'db-user',
+                'root',
+                InputOption::VALUE_OPTIONAL,
+                $this->trans('commands.generate.site.alias.options.db-user')
+            )
+            ->addOption(
+                'db-pass',
+                '????',
+                InputOption::VALUE_OPTIONAL,
+                $this->trans('commands.generate.site.alias.options.db-pass')
             )
             ->setAliases(['gsa']);
     }
@@ -369,7 +414,7 @@ class SiteAliasCommand extends Command
         }
         $account_pass = $input->getOption('account-pass');
         if (!$account_pass) {
-            $account_pass = $this->getIo()->ask(
+            $account_pass = $this->getIo()->askEmpty(
                 $this->trans('commands.generate.site.alias.questions.account-pass'),
                 ''
             );
@@ -389,7 +434,7 @@ class SiteAliasCommand extends Command
         // Repository arguments.
         $repo_type = $input->getOption('repo-type');
         if (!$repo_type) {
-            $repo_type = $this->getIo()->ask(
+            $repo_type = $this->getIo()->askEmpty(
                 $this->trans('commands.generate.site.alias.questions.repo-type'),
                 'git'
             );
@@ -398,7 +443,7 @@ class SiteAliasCommand extends Command
         }
         $repo_url = $input->getOption('repo-url');
         if (!$repo_url) {
-            $repo_url = $this->getIo()->ask(
+            $repo_url = $this->getIo()->askEmpty(
                 $this->trans('commands.generate.site.alias.questions.repo-url'),
                 ''
             );
@@ -407,12 +452,77 @@ class SiteAliasCommand extends Command
         }
         $repo_branch = $input->getOption('repo-branch');
         if (!$repo_branch) {
-            $repo_branch = $this->getIo()->ask(
+            $repo_branch = $this->getIo()->askEmpty(
                 $this->trans('commands.generate.site.alias.questions.repo-branch'),
                 'master'
             );
 
             $input->setOption('repo-branch', $repo_branch);
+        }
+
+        // Database arguments.
+        $db_driver = $input->getOption('db-driver');
+        if (!$db_driver) {
+            $db_driver = $this->getIo()->askEmpty(
+                $this->trans('commands.generate.site.alias.questions.db-driver'),
+                'mysql'
+            );
+
+            $input->setOption('db-driver', $db_driver);
+        }
+        $db_host = $input->getOption('db-host');
+        if (!$db_host) {
+            $db_host = $this->getIo()->askEmpty(
+                $this->trans('commands.generate.site.alias.questions.db-host'),
+                'mariadb'
+            );
+
+            $input->setOption('db-host', $db_host);
+        }
+        $db_port = $input->getOption('db-port');
+        if (!$db_port) {
+            $db_port = $this->getIo()->askEmpty(
+                $this->trans('commands.generate.site.alias.questions.db-port'),
+                '3306'
+            );
+
+            $input->setOption('db-port', $db_port);
+        }
+        $db_name = $input->getOption('db-name');
+        if (!$db_name) {
+            $db_name = $this->getIo()->askEmpty(
+                $this->trans('commands.generate.site.alias.questions.db-name'),
+                'drupal'
+            );
+
+            $input->setOption('db-name', $db_name);
+        }
+        $db_user = $input->getOption('db-user');
+        if (!$db_user) {
+            $db_user = $this->getIo()->askEmpty(
+                $this->trans('commands.generate.site.alias.questions.db-user'),
+                'root'
+            );
+
+            $input->setOption('db-user', $db_user);
+        }
+        $db_pass = $input->getOption('db-pass');
+        if (!$db_pass) {
+            $db_pass = $this->getIo()->askEmpty(
+                $this->trans('commands.generate.site.alias.questions.db-pass'),
+                ''
+            );
+
+            $input->setOption('db-pass', $db_pass);
+        }
+        $db_dump = $input->getOption('db-dump');
+        if (!$db_dump) {
+            $db_dump = $this->getIo()->askEmpty(
+                $this->trans('commands.generate.site.alias.questions.db-dump'),
+                ''
+            );
+
+            $input->setOption('db-dump', $db_dump);
         }
 
         // Directory.
@@ -460,6 +570,13 @@ class SiteAliasCommand extends Command
                 'repo_type' => $input->getOption('repo-type'),
                 'repo_url' => $input->getOption('repo-url'),
                 'repo_branch' => $input->getOption('repo-branch'),
+                'db_driver' => $input->getOption('db-driver'),
+                'db_host' => $input->getOption('db-host'),
+                'db_port' => $input->getOption('db-port'),
+                'db_name' => $input->getOption('db-name'),
+                'db_user' => $input->getOption('db-user'),
+                'db_pass' => $input->getOption('db-pass'),
+                'db_dump' => $input->getOption('db-dump'),
                 'uri' => $input->getOption('site-uri'),
                 'port' => $input->getOption('port'),
                 'user' => $input->getOption('user'),

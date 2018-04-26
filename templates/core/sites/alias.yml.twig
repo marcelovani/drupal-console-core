@@ -15,22 +15,42 @@
 {% if account_mail %}
   account-mail: {{ account_mail }}
 {% endif %}
+
+# Remote
 {% if port and user %}
   ssh:
     port: {{ port }}
     user: {{ user }}
 {% endif %}
+
+# Repository
 {% if repo_type and repo_url and repo_branch %}
   repo:
     type: {{ repo_type }}
     url: {{ repo_url }}
     branch: {{ repo_branch }}
 {% endif %}
+
+# Database
+{% if db_driver and db_host and db_port and db_user %}
+  db:
+    driver: {{ db_driver }}
+    host: {{ db_host }}
+    port: {{ db_port }}
+    name: {{ db_name }}
+    user: {{ db_user }}
+    {% if db_pass %}
+    pass: {{ db_pass }}
+    {% endif %}
+    {% if db_dump %}
+    dump: {{ db_dump }}
+    {% endif %}
+{% endif %}
+
+# Options
 {% if uri %}
   options:
     uri: {{ uri }}
-{% else %}
-#  options:
 {% endif %}
 {% if extra_options %}
   extra-options: '{{ extra_options }}'
