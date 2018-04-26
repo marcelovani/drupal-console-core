@@ -180,6 +180,24 @@ class SiteAliasCommand extends Command
                 InputOption::VALUE_OPTIONAL,
                 $this->trans('commands.generate.site.alias.options.account-mail')
             )
+            ->addOption(
+                'repo-type',
+                'git',
+                InputOption::VALUE_OPTIONAL,
+                $this->trans('commands.generate.site.alias.options.repo-type')
+            )
+            ->addOption(
+                'repo-url',
+                'git@github.com:user/repo.git',
+                InputOption::VALUE_OPTIONAL,
+                $this->trans('commands.generate.site.alias.options.repo-url')
+            )
+            ->addOption(
+                'repo-branch',
+                'master',
+                InputOption::VALUE_OPTIONAL,
+                $this->trans('commands.generate.site.alias.options.repo-branch')
+            )
             ->setAliases(['gsa']);
     }
 
@@ -368,6 +386,35 @@ class SiteAliasCommand extends Command
             $input->setOption('account-mail', $account_mail);
         }
 
+        // Repository arguments.
+        $repo_type = $input->getOption('repo-type');
+        if (!$repo_type) {
+            $repo_type = $this->getIo()->ask(
+                $this->trans('commands.generate.site.alias.questions.repo-type'),
+                'git'
+            );
+
+            $input->setOption('repo-type', $repo_type);
+        }
+        $repo_url = $input->getOption('repo-url');
+        if (!$repo_url) {
+            $repo_url = $this->getIo()->ask(
+                $this->trans('commands.generate.site.alias.questions.repo-url'),
+                ''
+            );
+
+            $input->setOption('repo-url', $repo_url);
+        }
+        $repo_branch = $input->getOption('repo-branch');
+        if (!$repo_branch) {
+            $repo_branch = $this->getIo()->ask(
+                $this->trans('commands.generate.site.alias.questions.repo-branch'),
+                'master'
+            );
+
+            $input->setOption('repo-branch', $repo_branch);
+        }
+
         // Directory.
         $directory = $input->getOption('directory');
         if ($site && $this->drupalFinder->getComposerRoot()) {
@@ -410,6 +457,9 @@ class SiteAliasCommand extends Command
                 'account_name' => $input->getOption('account-name'),
                 'account_pass' => $input->getOption('account-pass'),
                 'account_mail' => $input->getOption('account-mail'),
+                'repo_type' => $input->getOption('repo-type'),
+                'repo_url' => $input->getOption('repo-url'),
+                'repo_branch' => $input->getOption('repo-branch'),
                 'uri' => $input->getOption('site-uri'),
                 'port' => $input->getOption('port'),
                 'user' => $input->getOption('user'),

@@ -17,12 +17,14 @@
 {% endif %}
 {% if port and user %}
   ssh:
-  {% if port %}
-  port: {{ port }}
-  {% endif %}
-{% if user %}
-  user: {{ user }}
+    port: {{ port }}
+    user: {{ user }}
 {% endif %}
+{% if repo_type and repo_url and repo_branch %}
+  repo:
+    type: {{ repo_type }}
+    url: {{ repo_url }}
+    branch: {{ repo_branch }}
 {% endif %}
 {% if uri %}
   options:
