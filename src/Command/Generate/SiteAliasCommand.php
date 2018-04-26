@@ -170,7 +170,7 @@ class SiteAliasCommand extends Command
             )
             ->addOption(
                 'account-pass',
-                '****',
+                '?????',
                 InputOption::VALUE_OPTIONAL,
                 $this->trans('commands.generate.site.alias.options.account-pass')
             )
@@ -353,7 +353,7 @@ class SiteAliasCommand extends Command
         if (!$account_pass) {
             $account_pass = $this->getIo()->ask(
                 $this->trans('commands.generate.site.alias.questions.account-pass'),
-                '****'
+                ''
             );
 
             $input->setOption('account-pass', $account_pass);
