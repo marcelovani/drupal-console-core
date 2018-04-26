@@ -1,6 +1,6 @@
 {{ environment }}:
-  name: {{ name }}
   type: {{ type }}
+  name: {{ name }}
   root: {{ root }}
   server-root: {{ server_root }}
 {% if host %}
@@ -16,7 +16,7 @@
   account-mail: {{ account_mail }}
 {% endif %}
 {% if port and user %}
-  {{ type }}:
+  ssh:
   {% if port %}
   port: {{ port }}
   {% endif %}
@@ -30,7 +30,6 @@
 {% else %}
 #  options:
 {% endif %}
-#  arguments:
 {% if extra_options %}
   extra-options: '{{ extra_options }}'
 {% endif %}
