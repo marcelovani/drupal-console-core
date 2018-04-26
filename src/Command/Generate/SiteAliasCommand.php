@@ -163,10 +163,22 @@ class SiteAliasCommand extends Command
                 $this->trans('commands.generate.site.alias.options.directory')
             )
             ->addOption(
-                'profile',
-                'standard',
+                'account-name',
+                'admin',
                 InputOption::VALUE_OPTIONAL,
-                $this->trans('commands.generate.site.alias.options.profile')
+                $this->trans('commands.generate.site.alias.options.account-name')
+            )
+            ->addOption(
+                'account-pass',
+                '****',
+                InputOption::VALUE_OPTIONAL,
+                $this->trans('commands.generate.site.alias.options.account-pass')
+            )
+            ->addOption(
+                'account-mail',
+                'email@example.com',
+                InputOption::VALUE_OPTIONAL,
+                $this->trans('commands.generate.site.alias.options.account-mail')
             )
             ->setAliases(['gsa']);
     }
@@ -327,15 +339,33 @@ class SiteAliasCommand extends Command
                 break;
         }
 
-        // .
-        $profile = $input->getOption('profile');
-        if (!$profile) {
-            $profile = $this->getIo()->ask(
-                $this->trans('commands.generate.site.alias.questions.profile'),
-                'standard'
+        // Site installation arguments.
+        $account_name = $input->getOption('account-name');
+        if (!$account_name) {
+            $account_name = $this->getIo()->ask(
+                $this->trans('commands.generate.site.alias.questions.account-name'),
+                'admin'
             );
 
-            $input->setOption('profile', $profile);
+            $input->setOption('account-name', $account_name);
+        }
+        $account_pass = $input->getOption('account-pass');
+        if (!$account_pass) {
+            $account_pass = $this->getIo()->ask(
+                $this->trans('commands.generate.site.alias.questions.account-pass'),
+                '****'
+            );
+
+            $input->setOption('account-pass', $account_pass);
+        }
+        $account_mail = $input->getOption('account-mail');
+        if (!$account_mail) {
+            $account_mail = $this->getIo()->ask(
+                $this->trans('commands.generate.site.alias.questions.account-mail'),
+                'email@example.com'
+            );
+
+            $input->setOption('account-mail', $account_mail);
         }
 
         // Directory.
@@ -376,12 +406,14 @@ class SiteAliasCommand extends Command
                 'extra_options' => $input->getOption('extra-options'),
                 'root' => $input->getOption('drupal-root'),
                 'server_root' => $input->getOption('server-root'),
+                'host' => $input->getOption('host'),
+                'account_name' => $input->getOption('account-name'),
+                'account_pass' => $input->getOption('account-pass'),
+                'account_mail' => $input->getOption('account-mail'),
                 'uri' => $input->getOption('site-uri'),
                 'port' => $input->getOption('port'),
                 'user' => $input->getOption('user'),
-                'host' => $input->getOption('host'),
                 'directory' => $directory,
-                'profile' => $input->getOption('profile'),
             ]
         );
     }
