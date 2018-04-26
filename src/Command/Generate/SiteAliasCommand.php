@@ -295,25 +295,27 @@ class SiteAliasCommand extends Command
             $input->setOption('extra-options', $extraOptions);
         }
 
-        if ($type !== 'local') {
+        switch ($type) {
+            case 'ssh':
+            case 'container':
+                $user = $input->getOption('user');
+                if (!$user) {
+                    $user = $this->getIo()->askEmpty(
+                        $this->trans('commands.generate.site.alias.questions.user')
+                    );
 
-            $user = $input->getOption('user');
-            if (!$user) {
-                $user = $this->getIo()->askEmpty(
-                    $this->trans('commands.generate.site.alias.questions.user')
-                );
+                    $input->setOption('user', $user);
+                }
 
-                $input->setOption('user', $user);
-            }
+                $port = $input->getOption('port');
+                if (!$port) {
+                    $port = $this->getIo()->askEmpty(
+                        $this->trans('commands.generate.site.alias.questions.port')
+                    );
 
-            $port = $input->getOption('port');
-            if (!$port) {
-                $port = $this->getIo()->askEmpty(
-                    $this->trans('commands.generate.site.alias.questions.port')
-                );
-
-                $input->setOption('port', $port);
-            }
+                    $input->setOption('port', $port);
+                }
+                break;
         }
 
         $profile = $input->getOption('profile');
