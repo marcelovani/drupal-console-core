@@ -51,7 +51,6 @@ class SiteAliasCommand extends Command
      * @var array
      */
     private $extraOptions = [
-        'local' => [],
         'ssh' => [
             'none' => 'none',
             'vagrant' => '-o PasswordAuthentication=no -i ~/.vagrant.d/insecure_private_key',
@@ -498,10 +497,10 @@ class SiteAliasCommand extends Command
         $drupalRoot = $input->getOption('drupal-root');
         if (empty($drupalRoot)) {
             // Backwards compatibility after renaming option to drupal-root.
-            $composerRoot = $input->getOption('composer-root');
+        $composerRoot = $input->getOption('composer-root');
             if (!empty($composerRoot)) {
-                $drupalRoot = $composerRoot;
-            }
+            $drupalRoot = $composerRoot;
+        }
         }
         if (!$drupalRoot) {
             $root = $this->drupalFinder->getComposerRoot();
@@ -548,28 +547,28 @@ class SiteAliasCommand extends Command
             $account_name = $this->getIo()->ask(
                 $this->trans('commands.generate.site.alias.options.account-name'),
                 'admin'
-            );
+                );
 
             $input->setOption('account-name', $account_name);
-        }
+            }
         $account_pass = $input->getOption('account-pass');
         if (!$account_pass) {
             $account_pass = $this->getIo()->askEmpty(
                 $this->trans('commands.generate.site.alias.options.account-pass'),
                 ''
-            );
+                );
 
             $input->setOption('account-pass', $account_pass);
-        }
+            }
         $account_mail = $input->getOption('account-mail');
         if (!$account_mail) {
             $account_mail = $this->getIo()->ask(
                 $this->trans('commands.generate.site.alias.options.account-mail'),
                 'email@example.com'
-            );
+                );
 
             $input->setOption('account-mail', $account_mail);
-        }
+            }
 
         // Directory.
         $directory = $input->getOption('directory');
