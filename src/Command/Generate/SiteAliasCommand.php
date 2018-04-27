@@ -84,6 +84,7 @@ class SiteAliasCommand extends Command
                 $this->trans('commands.generate.site.alias.description')
             )
             ->setHelp($this->trans('commands.generate.site.alias.help'))
+            // Site.
             ->addOption(
                 'site',
                 null,
@@ -96,12 +97,14 @@ class SiteAliasCommand extends Command
                 InputOption::VALUE_REQUIRED,
                 $this->trans('commands.generate.site.alias.options.name')
             )
+            // Environment.
             ->addOption(
                 'environment',
                 null,
                 InputOption::VALUE_REQUIRED,
                 $this->trans('commands.generate.site.alias.options.environment')
             )
+            // Type.
             ->addOption(
                 'type',
                 null,
@@ -109,77 +112,29 @@ class SiteAliasCommand extends Command
                 $this->trans('commands.generate.site.alias.options.type')
             )
             ->addOption(
-                'composer-root',
-                null,
-                InputOption::VALUE_NONE,
-                $this->trans('commands.generate.site.alias.options.composer-root')
-            )
-            ->addOption(
-                'drupal-root',
-                null,
-                InputOption::VALUE_OPTIONAL,
-                $this->trans('commands.generate.site.alias.options.drupal-root')
-            )
-            ->addOption(
-                'server-root',
-                null,
-                InputOption::VALUE_OPTIONAL,
-                $this->trans('commands.generate.site.alias.options.server-root')
-            )
-            ->addOption(
-                'site-uri',
-                null,
-                InputOption::VALUE_OPTIONAL,
-                $this->trans('commands.generate.site.alias.options.site-uri')
-            )
-            ->addOption(
-                'host',
-                null,
-                InputOption::VALUE_OPTIONAL,
-                $this->trans('commands.generate.site.alias.options.host')
-            )
-            ->addOption(
-                'user',
-                null,
-                InputOption::VALUE_OPTIONAL,
-                $this->trans('commands.generate.site.alias.options.user')
-            )
-            ->addOption(
-                'port',
-                null,
-                InputOption::VALUE_OPTIONAL,
-                $this->trans('commands.generate.site.alias.options.port')
-            )
-            ->addOption(
                 'extra-options',
                 null,
                 InputOption::VALUE_OPTIONAL,
                 $this->trans('commands.generate.site.alias.options.extra-options')
             )
+            // Remote.
             ->addOption(
-                'directory',
-                null,
-                InputOption::VALUE_REQUIRED,
-                $this->trans('commands.generate.site.alias.options.directory')
-            )
-            // Site installation.
-            ->addOption(
-                'account-name',
-                'admin',
+                'host',
+                '',
                 InputOption::VALUE_OPTIONAL,
-                $this->trans('commands.generate.site.alias.options.account-name')
+                $this->trans('commands.generate.site.alias.options.host')
             )
             ->addOption(
-                'account-pass',
-                '?????',
+                'port',
+                '',
                 InputOption::VALUE_OPTIONAL,
-                $this->trans('commands.generate.site.alias.options.account-pass')
+                $this->trans('commands.generate.site.alias.options.port')
             )
             ->addOption(
-                'account-mail',
-                'email@example.com',
+                'user',
+                '',
                 InputOption::VALUE_OPTIONAL,
-                $this->trans('commands.generate.site.alias.options.account-mail')
+                $this->trans('commands.generate.site.alias.options.user')
             )
             // Repository.
             ->addOption(
@@ -243,6 +198,71 @@ class SiteAliasCommand extends Command
                 InputOption::VALUE_OPTIONAL,
                 $this->trans('commands.generate.site.alias.options.db-pass')
             )
+            // Web host.
+            ->addOption(
+                'web-host',
+                'example.com',
+                InputOption::VALUE_OPTIONAL,
+                $this->trans('commands.generate.site.alias.options.web-host')
+            )
+            ->addOption(
+                'web-port',
+                '80',
+                InputOption::VALUE_OPTIONAL,
+                $this->trans('commands.generate.site.alias.options.web-port')
+            )
+            // Server root.
+            ->addOption(
+                'composer-root',
+                null,
+                InputOption::VALUE_NONE,
+                $this->trans('commands.generate.site.alias.options.composer-root')
+            )
+            ->addOption(
+                'drupal-root',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                $this->trans('commands.generate.site.alias.options.drupal-root')
+            )
+            ->addOption(
+                'server-root',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                $this->trans('commands.generate.site.alias.options.server-root')
+            )
+            // Multisite.
+            ->addOption(
+                'site-uri',
+                null,
+                InputOption::VALUE_OPTIONAL,
+                $this->trans('commands.generate.site.alias.options.site-uri')
+            )
+            // Site installation.
+            ->addOption(
+                'account-name',
+                'admin',
+                InputOption::VALUE_OPTIONAL,
+                $this->trans('commands.generate.site.alias.options.account-name')
+            )
+            ->addOption(
+                'account-pass',
+                '?????',
+                InputOption::VALUE_OPTIONAL,
+                $this->trans('commands.generate.site.alias.options.account-pass')
+            )
+            ->addOption(
+                'account-mail',
+                'email@example.com',
+                InputOption::VALUE_OPTIONAL,
+                $this->trans('commands.generate.site.alias.options.account-mail')
+            )
+            // Output.
+            ->addOption(
+                'directory',
+                null,
+                InputOption::VALUE_REQUIRED,
+                $this->trans('commands.generate.site.alias.options.directory')
+            )
             ->setAliases(['gsa']);
     }
 
@@ -293,7 +313,7 @@ class SiteAliasCommand extends Command
             $input->setOption('environment', $environment);
         }
 
-        // Type.
+        // Type i.e. ssh, local, container.
         $type = $input->getOption('type');
         if (!$type) {
             $type = $this->getIo()->choice(
@@ -303,64 +323,6 @@ class SiteAliasCommand extends Command
             );
 
             $input->setOption('type', $type);
-        }
-
-        // Drupal root.
-        $drupalRoot = $input->getOption('drupal-root');
-        if (empty($drupalRoot)) {
-            // Backwards compatibility after renaming option to drupal-root.
-            $composerRoot = $input->getOption('composer-root');
-            if (!empty($composerRoot)) {
-                $drupalRoot = $composerRoot;
-            }
-        }
-        if (!$drupalRoot) {
-            $root = $this->drupalFinder->getComposerRoot();
-            $drupalRoot = $this->getIo()->ask(
-                $this->trans('commands.generate.site.alias.questions.drupal-root'),
-                '/var/www/' . $name
-            );
-
-            $input->setOption('drupal-root', '/' . trim($drupalRoot, '/'));
-        }
-
-        // Server root.
-        $serverRoot = $input->getOption('server-root');
-        if (!$serverRoot) {
-            $serverRoot = $this->getIo()->askEmpty(
-                $this->trans('commands.generate.site.alias.questions.server-root'),
-                $drupalRoot . '/' . 'web'
-            );
-
-            $input->setOption('server-root', $serverRoot);
-        }
-
-        // Site URI.
-        $siteUri = $input->getOption('site-uri');
-        if (!$siteUri) {
-            $uri = explode('.', $environment);
-            if (count($uri)>1) {
-                $uri = $uri[1];
-            } else {
-                $uri = 'default';
-            }
-            $siteUri = $this->getIo()->askEmpty(
-                $this->trans('commands.generate.site.alias.questions.site-uri'),
-                $uri
-            );
-
-            $input->setOption('site-uri', $siteUri);
-        }
-
-        // Host name.
-        $host = $input->getOption('host');
-        if (!$host) {
-            $host = $this->getIo()->askEmpty(
-                $this->trans('commands.generate.site.alias.questions.host'),
-                'example.com'
-            );
-
-            $input->setOption('host', $host);
         }
 
         // Extra options.
@@ -384,60 +346,42 @@ class SiteAliasCommand extends Command
         switch ($type) {
             case 'ssh':
             case 'container':
-                $user = $input->getOption('user');
-                if (!$user) {
-                    $user = $this->getIo()->askEmpty(
-                        $this->trans('commands.generate.site.alias.questions.user')
+                $this->io->comment($this->trans('commands.generate.site.alias.stage.remote'));
+                $remote_host = $input->getOption('host');
+                if (!$remote_host) {
+                    $remote_host = $this->getIo()->askEmpty(
+                        $this->trans('commands.generate.site.alias.questions.host')
                     );
 
-                    $input->setOption('user', $user);
+                    $input->setOption('host', $remote_host);
                 }
 
-                $port = $input->getOption('port');
-                if (!$port) {
-                    $port = $this->getIo()->askEmpty(
+                $remote_port = $input->getOption('port');
+                if (!$remote_port) {
+                    $remote_port = $this->getIo()->askEmpty(
                         $this->trans('commands.generate.site.alias.questions.port')
                     );
 
-                    $input->setOption('port', $port);
+                    $input->setOption('port', $remote_port);
+                }
+
+                $remote_user = $input->getOption('user');
+                if (!$remote_user) {
+                    $remote_user = $this->getIo()->askEmpty(
+                        $this->trans('commands.generate.site.alias.questions.user')
+                    );
+
+                    $input->setOption('user', $remote_user);
                 }
                 break;
         }
 
-        // Site installation arguments.
-        $account_name = $input->getOption('account-name');
-        if (!$account_name) {
-            $account_name = $this->getIo()->ask(
-                $this->trans('commands.generate.site.alias.questions.account-name'),
-                'admin'
-            );
-
-            $input->setOption('account-name', $account_name);
-        }
-        $account_pass = $input->getOption('account-pass');
-        if (!$account_pass) {
-            $account_pass = $this->getIo()->askEmpty(
-                $this->trans('commands.generate.site.alias.questions.account-pass'),
-                ''
-            );
-
-            $input->setOption('account-pass', $account_pass);
-        }
-        $account_mail = $input->getOption('account-mail');
-        if (!$account_mail) {
-            $account_mail = $this->getIo()->ask(
-                $this->trans('commands.generate.site.alias.questions.account-mail'),
-                'email@example.com'
-            );
-
-            $input->setOption('account-mail', $account_mail);
-        }
-
         // Repository arguments.
+        $this->io->comment($this->trans('commands.generate.site.alias.stage.repository'));
         $repo_type = $input->getOption('repo-type');
         if (!$repo_type) {
             $repo_type = $this->getIo()->askEmpty(
-                $this->trans('commands.generate.site.alias.questions.repo-type'),
+                $this->trans('commands.generate.site.alias.options.repo-type'),
                 'git'
             );
 
@@ -446,7 +390,7 @@ class SiteAliasCommand extends Command
         $repo_url = $input->getOption('repo-url');
         if (!$repo_url) {
             $repo_url = $this->getIo()->askEmpty(
-                $this->trans('commands.generate.site.alias.questions.repo-url'),
+                $this->trans('commands.generate.site.alias.options.repo-url'),
                 ''
             );
 
@@ -455,7 +399,7 @@ class SiteAliasCommand extends Command
         $repo_branch = $input->getOption('repo-branch');
         if (!$repo_branch) {
             $repo_branch = $this->getIo()->askEmpty(
-                $this->trans('commands.generate.site.alias.questions.repo-branch'),
+                $this->trans('commands.generate.site.alias.options.repo-branch'),
                 'master'
             );
 
@@ -463,10 +407,11 @@ class SiteAliasCommand extends Command
         }
 
         // Database arguments.
+        $this->io->comment($this->trans('commands.generate.site.alias.stage.database'));
         $db_driver = $input->getOption('db-driver');
         if (!$db_driver) {
             $db_driver = $this->getIo()->askEmpty(
-                $this->trans('commands.generate.site.alias.questions.db-driver'),
+                $this->trans('commands.generate.site.alias.options.db-driver'),
                 'mysql'
             );
 
@@ -475,7 +420,7 @@ class SiteAliasCommand extends Command
         $db_host = $input->getOption('db-host');
         if (!$db_host) {
             $db_host = $this->getIo()->askEmpty(
-                $this->trans('commands.generate.site.alias.questions.db-host'),
+                $this->trans('commands.generate.site.alias.options.db-host'),
                 'mariadb'
             );
 
@@ -484,7 +429,7 @@ class SiteAliasCommand extends Command
         $db_port = $input->getOption('db-port');
         if (!$db_port) {
             $db_port = $this->getIo()->askEmpty(
-                $this->trans('commands.generate.site.alias.questions.db-port'),
+                $this->trans('commands.generate.site.alias.options.db-port'),
                 '3306'
             );
 
@@ -493,7 +438,7 @@ class SiteAliasCommand extends Command
         $db_name = $input->getOption('db-name');
         if (!$db_name) {
             $db_name = $this->getIo()->askEmpty(
-                $this->trans('commands.generate.site.alias.questions.db-name'),
+                $this->trans('commands.generate.site.alias.options.db-name'),
                 'drupal'
             );
 
@@ -502,7 +447,7 @@ class SiteAliasCommand extends Command
         $db_user = $input->getOption('db-user');
         if (!$db_user) {
             $db_user = $this->getIo()->askEmpty(
-                $this->trans('commands.generate.site.alias.questions.db-user'),
+                $this->trans('commands.generate.site.alias.options.db-user'),
                 'root'
             );
 
@@ -511,7 +456,7 @@ class SiteAliasCommand extends Command
         $db_pass = $input->getOption('db-pass');
         if (!$db_pass) {
             $db_pass = $this->getIo()->askEmpty(
-                $this->trans('commands.generate.site.alias.questions.db-pass'),
+                $this->trans('commands.generate.site.alias.options.db-pass'),
                 ''
             );
 
@@ -520,11 +465,110 @@ class SiteAliasCommand extends Command
         $db_dump = $input->getOption('db-dump');
         if (!$db_dump) {
             $db_dump = $this->getIo()->askEmpty(
-                $this->trans('commands.generate.site.alias.questions.db-dump'),
+                $this->trans('commands.generate.site.alias.options.db-dump'),
                 ''
             );
 
             $input->setOption('db-dump', $db_dump);
+        }
+
+        // Host.
+        $this->io->comment($this->trans('commands.generate.site.alias.stage.web-host'));
+        $web_host = $input->getOption('web-host');
+        if (!$web_host) {
+            $web_host = $this->getIo()->askEmpty(
+                $this->trans('commands.generate.site.alias.questions.web-host'),
+                'example.com'
+            );
+
+            $input->setOption('web-host', $web_host);
+        }
+        $web_port = $input->getOption('web-port');
+        if (!$web_port) {
+            $web_port = $this->getIo()->askEmpty(
+                $this->trans('commands.generate.site.alias.questions.web-port'),
+                '80'
+            );
+
+            $input->setOption('web-port', $web_port);
+        }
+
+        // Drupal root.
+        $this->io->comment($this->trans('commands.generate.site.alias.stage.server'));
+        $drupalRoot = $input->getOption('drupal-root');
+        if (empty($drupalRoot)) {
+            // Backwards compatibility after renaming option to drupal-root.
+            $composerRoot = $input->getOption('composer-root');
+            if (!empty($composerRoot)) {
+                $drupalRoot = $composerRoot;
+            }
+        }
+        if (!$drupalRoot) {
+            $root = $this->drupalFinder->getComposerRoot();
+            $drupalRoot = $this->getIo()->ask(
+                $this->trans('commands.generate.site.alias.options.drupal-root'),
+                '/var/www/' . $name
+            );
+
+            $input->setOption('drupal-root', '/' . trim($drupalRoot, '/'));
+        }
+
+        // Server root.
+        $serverRoot = $input->getOption('server-root');
+        if (!$serverRoot) {
+            $serverRoot = $this->getIo()->askEmpty(
+                $this->trans('commands.generate.site.alias.options.server-root'),
+                $drupalRoot . '/' . 'web'
+            );
+
+            $input->setOption('server-root', $serverRoot);
+        }
+
+        // Site URI.
+        $siteUri = $input->getOption('site-uri');
+        if (!$siteUri) {
+            $uri = explode('.', $environment);
+            if (count($uri)>1) {
+                $uri = $uri[1];
+            } else {
+                $uri = 'default';
+            }
+            $siteUri = $this->getIo()->askEmpty(
+                $this->trans('commands.generate.site.alias.questions.site-uri'),
+                $uri
+            );
+
+            $input->setOption('site-uri', $siteUri);
+        }
+
+        // Site installation arguments.
+        $this->io->comment($this->trans('commands.generate.site.alias.stage.installation'));
+        $account_name = $input->getOption('account-name');
+        if (!$account_name) {
+            $account_name = $this->getIo()->ask(
+                $this->trans('commands.generate.site.alias.options.account-name'),
+                'admin'
+            );
+
+            $input->setOption('account-name', $account_name);
+        }
+        $account_pass = $input->getOption('account-pass');
+        if (!$account_pass) {
+            $account_pass = $this->getIo()->askEmpty(
+                $this->trans('commands.generate.site.alias.options.account-pass'),
+                ''
+            );
+
+            $input->setOption('account-pass', $account_pass);
+        }
+        $account_mail = $input->getOption('account-mail');
+        if (!$account_mail) {
+            $account_mail = $this->getIo()->ask(
+                $this->trans('commands.generate.site.alias.options.account-mail'),
+                'email@example.com'
+            );
+
+            $input->setOption('account-mail', $account_mail);
         }
 
         // Directory.
@@ -559,19 +603,20 @@ class SiteAliasCommand extends Command
         }
         $this->generator->generate(
             [
+                // Site.
                 'name' => $input->getOption('name'),
                 'environment' => $input->getOption('environment'),
                 'type' => $input->getOption('type'),
                 'extra_options' => $input->getOption('extra-options'),
-                'root' => $input->getOption('drupal-root'),
-                'server_root' => $input->getOption('server-root'),
+                // Remote.
                 'host' => $input->getOption('host'),
-                'account_name' => $input->getOption('account-name'),
-                'account_pass' => $input->getOption('account-pass'),
-                'account_mail' => $input->getOption('account-mail'),
+                'port' => $input->getOption('port'),
+                'user' => $input->getOption('user'),
+                // Repository.
                 'repo_type' => $input->getOption('repo-type'),
                 'repo_url' => $input->getOption('repo-url'),
                 'repo_branch' => $input->getOption('repo-branch'),
+                // Database.
                 'db_driver' => $input->getOption('db-driver'),
                 'db_host' => $input->getOption('db-host'),
                 'db_port' => $input->getOption('db-port'),
@@ -579,9 +624,19 @@ class SiteAliasCommand extends Command
                 'db_user' => $input->getOption('db-user'),
                 'db_pass' => $input->getOption('db-pass'),
                 'db_dump' => $input->getOption('db-dump'),
+                // Web host.
+                'web_host' => $input->getOption('web-host'),
+                'web_port' => $input->getOption('web-port'),
+                // Server root.
+                'root' => $input->getOption('drupal-root'),
+                'server_root' => $input->getOption('server-root'),
+                // Multisite.
                 'uri' => $input->getOption('site-uri'),
-                'port' => $input->getOption('port'),
-                'user' => $input->getOption('user'),
+                // Installation.
+                'account_name' => $input->getOption('account-name'),
+                'account_pass' => $input->getOption('account-pass'),
+                'account_mail' => $input->getOption('account-mail'),
+                // Output.
                 'directory' => $directory,
             ]
         );
