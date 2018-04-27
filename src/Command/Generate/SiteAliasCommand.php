@@ -200,16 +200,16 @@ class SiteAliasCommand extends Command
             )
             // Web host.
             ->addOption(
-                'web-host',
+                'host-name',
                 'example.com',
                 InputOption::VALUE_OPTIONAL,
-                $this->trans('commands.generate.site.alias.options.web-host')
+                $this->trans('commands.generate.site.alias.options.host-name')
             )
             ->addOption(
-                'web-port',
+                'host-port',
                 '80',
                 InputOption::VALUE_OPTIONAL,
-                $this->trans('commands.generate.site.alias.options.web-port')
+                $this->trans('commands.generate.site.alias.options.host-port')
             )
             // Server root.
             ->addOption(
@@ -473,24 +473,24 @@ class SiteAliasCommand extends Command
         }
 
         // Host.
-        $this->io->comment($this->trans('commands.generate.site.alias.stage.web-host'));
-        $web_host = $input->getOption('web-host');
-        if (!$web_host) {
-            $web_host = $this->getIo()->askEmpty(
-                $this->trans('commands.generate.site.alias.questions.web-host'),
+        $this->io->comment($this->trans('commands.generate.site.alias.stage.host-name'));
+        $host_name = $input->getOption('host-name');
+        if (!$host_name) {
+            $host_name = $this->getIo()->askEmpty(
+                $this->trans('commands.generate.site.alias.questions.host-name'),
                 'example.com'
             );
 
-            $input->setOption('web-host', $web_host);
+            $input->setOption('host-name', $host_name);
         }
-        $web_port = $input->getOption('web-port');
-        if (!$web_port) {
-            $web_port = $this->getIo()->askEmpty(
-                $this->trans('commands.generate.site.alias.questions.web-port'),
+        $host_port = $input->getOption('host-port');
+        if (!$host_port) {
+            $host_port = $this->getIo()->askEmpty(
+                $this->trans('commands.generate.site.alias.questions.host-port'),
                 '80'
             );
 
-            $input->setOption('web-port', $web_port);
+            $input->setOption('host-port', $host_port);
         }
 
         // Drupal root.
@@ -625,8 +625,8 @@ class SiteAliasCommand extends Command
                 'db_pass' => $input->getOption('db-pass'),
                 'db_dump' => $input->getOption('db-dump'),
                 // Web host.
-                'web_host' => $input->getOption('web-host'),
-                'web_port' => $input->getOption('web-port'),
+                'host_name' => $input->getOption('host-name'),
+                'host_port' => $input->getOption('host-port'),
                 // Server root.
                 'root' => $input->getOption('drupal-root'),
                 'server_root' => $input->getOption('server-root'),

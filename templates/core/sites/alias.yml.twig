@@ -4,9 +4,9 @@
   name: {{ name }}
   root: {{ root }}
   server-root: {{ server_root }}
-{% if web_host %}
-  web-host: {{ web_host }}
-  web-port: {{ web_port }}
+{% if host_name %}
+  host-name: {{ host_name }}
+  host-port: {{ host_port }}
 {% endif %}
 
 {% if account_name %}
