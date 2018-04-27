@@ -305,12 +305,14 @@ class SiteAliasCommand extends Command
             $input->setOption('type', $type);
         }
 
-        // Backwards compatibility after renaming option to drupal-root.
-        $composerRoot = $input->getOption('composer-root');
         // Drupal root.
         $drupalRoot = $input->getOption('drupal-root');
-        if (empty($drupalRoot) && !empty($composerRoot)) {
-            $drupalRoot = $composerRoot;
+        if (empty($drupalRoot)) {
+            // Backwards compatibility after renaming option to drupal-root.
+            $composerRoot = $input->getOption('composer-root');
+            if (!empty($composerRoot)) {
+                $drupalRoot = $composerRoot;
+            }
         }
         if (!$drupalRoot) {
             $root = $this->drupalFinder->getComposerRoot();
@@ -319,7 +321,7 @@ class SiteAliasCommand extends Command
                 '/var/www/' . $name
             );
 
-            $input->setOption('drupal-root', trim($drupalRoot, '/'));
+            $input->setOption('drupal-root', '/' . trim($drupalRoot, '/'));
         }
 
         // Server root.
